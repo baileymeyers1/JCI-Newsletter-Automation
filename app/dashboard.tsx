@@ -353,7 +353,9 @@ export default function Dashboard() {
       {notice ? <div className="notice">{notice}</div> : null}
 
       <div className="cards">
-        {clients.map((client) => {
+        {clients
+          .filter((client) => client.client_name || client.client_id)
+          .map((client) => {
           const assigned = recipientsByClient[client.client_id] || [];
           return (
             <div className="client-card" key={client.client_id}>
@@ -386,6 +388,7 @@ export default function Dashboard() {
                 )}
               </div>
             </div>
+          );
           );
         })}
       </div>
