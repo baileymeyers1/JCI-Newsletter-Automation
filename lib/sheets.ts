@@ -5,15 +5,20 @@ export type SheetRow = Record<string, string | number> & { _rowNumber?: number }
 const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID;
 const SERVICE_ACCOUNT_EMAIL = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
 const PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY;
+const PRIVATE_KEY_B64 = process.env.GOOGLE_PRIVATE_KEY_B64;
 
 function getSheetsClient() {
-  if (!SPREADSHEET_ID || !SERVICE_ACCOUNT_EMAIL || !PRIVATE_KEY) {
+  if (!SPREADSHEET_ID || !SERVICE_ACCOUNT_EMAIL || (!PRIVATE_KEY && !PRIVATE_KEY_B64)) {
     throw new Error('Missing Google Sheets env vars');
   }
 
+  const resolvedKey = PRIVATE_KEY_B64
+    ? Buffer.from(PRIVATE_KEY_B64, 'base64').toString('utf8')
+    : (PRIVATE_KEY || '').replace(/\\n/g, '\n');
+
   const auth = new google.auth.JWT({
     email: SERVICE_ACCOUNT_EMAIL,
-    key: PRIVATE_KEY.replace(/\\n/g, '\n'),
+    key: resolvedKey,
     scopes: ['https://www.googleapis.com/auth/spreadsheets']
   });
 
