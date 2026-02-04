@@ -4,8 +4,8 @@ import { requireAuth } from '@/lib/auth';
 
 const SHEET = 'Recipients';
 
-function makeId(clientId: string, email: string): string {
-  return `${clientId}||${email}`;
+function makeId(clientId: string | number, email: string | number): string {
+  return `${String(clientId)}||${String(email)}`;
 }
 
 export async function GET(req: NextRequest) {
