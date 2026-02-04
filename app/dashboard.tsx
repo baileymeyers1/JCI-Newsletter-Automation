@@ -356,9 +356,9 @@ export default function Dashboard() {
         {clients
           .filter((client) => client.client_name || client.client_id)
           .map((client) => {
-          const assigned = recipientsByClient[client.client_id] || [];
-          return (
-            <div className="client-card" key={client.client_id}>
+            const assigned = recipientsByClient[client.client_id] || [];
+            return (
+              <div className="client-card" key={client.client_id}>
               <div className="card-header">
                 <div>
                   <h2>{client.client_name}</h2>
@@ -387,9 +387,9 @@ export default function Dashboard() {
                   </ul>
                 )}
               </div>
-            </div>
-          );
-          );
+              </div>
+            );
+          })}
         })}
       </div>
 
