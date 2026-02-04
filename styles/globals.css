@@ -135,6 +135,11 @@ input, select, textarea {
   font-weight: 700;
 }
 
+.pill.section-pill {
+  background: #efe3d6;
+  font-size: 11px;
+}
+
 .recipients-block h3 {
   margin: 0 0 8px;
   font-size: 14px;
@@ -330,6 +335,34 @@ input, select, textarea {
 
 .urls-preview {
   margin-top: 10px;
+}
+
+.section-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.checkbox-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: #f1e3d6;
+  font-size: 12px;
+  color: #5d4a3c;
+}
+
+.checkbox-pill input {
+  accent-color: #1d1a17;
+}
+
+.other-section {
+  margin-top: 10px;
+  display: grid;
+  gap: 10px;
 }
 
 .recipient-list {

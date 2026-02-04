@@ -10,6 +10,7 @@ type ClientRow = {
   jci_role: string;
   keywords: string;
   specific_urls: string;
+  newsletter_sections: string;
   send_time: string;
   timezone: string;
   analysis_style: string;
@@ -59,6 +60,7 @@ const clientDefaults: ClientRow = {
   jci_role: '',
   keywords: '',
   specific_urls: '',
+  newsletter_sections: 'Executive Summary, Key Developments, Strategic Implications, Recommended Actions',
   send_time: '',
   timezone: 'America/Los_Angeles',
   analysis_style: 'brief',
@@ -75,6 +77,18 @@ const timezones = [
 
 const analysisStyles = ['brief', 'executive', 'detailed'];
 
+const newsletterSectionOptions = [
+  'Executive Summary',
+  'Key Developments',
+  'Strategic Implications',
+  'Recommended Actions',
+  'Stakeholder Analysis',
+  'Business Opportunities',
+  'PR Opportunities',
+  'Political Opportunities',
+  'Standout Media'
+];
+
 const hourOptions = Array.from({ length: 12 }, (_, i) => String(i + 1));
 
 const minuteOptions = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
@@ -84,6 +98,11 @@ function parseCommaList(value: string): string[] {
     .split(',')
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+function extractOtherSection(sections: string[]): string {
+  const other = sections.find((section) => section.toLowerCase().startsWith('other:'));
+  return other ? other.slice(6).trim() : '';
 }
 
 function formatSendTime(value: string): string {
@@ -151,6 +170,7 @@ export default function Dashboard() {
   const [presetChoice, setPresetChoice] = useState<string>('');
   const [logPage, setLogPage] = useState(0);
   const [urlInput, setUrlInput] = useState('');
+  const [otherSectionText, setOtherSectionText] = useState('');
 
   useEffect(() => {
     refreshAll();
@@ -209,13 +229,16 @@ export default function Dashboard() {
     setPresetChoice('');
     setCustomRecipient({ name: '', email: '' });
     setUrlInput('');
+    setOtherSectionText('');
   }
 
   function openEditClient(client: ClientRow) {
-    setEditingClient({ ...client });
+    const sections = client.newsletter_sections || clientDefaults.newsletter_sections;
+    setEditingClient({ ...client, newsletter_sections: sections });
     setPresetChoice('');
     setCustomRecipient({ name: '', email: '' });
     setUrlInput('');
+    setOtherSectionText(extractOtherSection(parseCommaList(sections || '')));
   }
 
   function closeEditor() {
@@ -223,6 +246,7 @@ export default function Dashboard() {
     setPresetChoice('');
     setCustomRecipient({ name: '', email: '' });
     setUrlInput('');
+    setOtherSectionText('');
   }
 
   async function saveClient() {
@@ -320,6 +344,26 @@ export default function Dashboard() {
     setEditingClient({ ...editingClient, specific_urls: nextUrls.join(', ') });
   }
 
+  function toggleNewsletterSection(section: string) {
+    if (!editingClient) return;
+    const current = parseCommaList(editingClient.newsletter_sections || '');
+    const normalized = current.filter((item) => !item.toLowerCase().startsWith('other:'));
+    const exists = normalized.includes(section);
+    const nextBase = exists ? normalized.filter((item) => item !== section) : [...normalized, section];
+    const otherEntry = otherSectionText.trim() ? `Other: ${otherSectionText.trim()}` : '';
+    const next = otherEntry ? [...nextBase, otherEntry] : nextBase;
+    setEditingClient({ ...editingClient, newsletter_sections: next.join(', ') });
+  }
+
+  function updateOtherSection(value: string) {
+    if (!editingClient) return;
+    setOtherSectionText(value);
+    const current = parseCommaList(editingClient.newsletter_sections || '');
+    const base = current.filter((item) => !item.toLowerCase().startsWith('other:'));
+    const next = value.trim() ? [...base, `Other: ${value.trim()}`] : base;
+    setEditingClient({ ...editingClient, newsletter_sections: next.join(', ') });
+  }
+
   function autoGrow(event: React.FormEvent<HTMLTextAreaElement>) {
     const el = event.currentTarget;
     el.style.height = 'auto';
@@ -332,6 +376,8 @@ export default function Dashboard() {
   }
 
   const sendParts = editingClient ? getSendParts(editingClient.send_time) : getSendParts('');
+  const selectedSections = editingClient ? parseCommaList(editingClient.newsletter_sections || '') : [];
+  const selectedBaseSections = selectedSections.filter((section) => !section.toLowerCase().startsWith('other:'));
 
   return (
     <div className="container">
@@ -357,6 +403,7 @@ export default function Dashboard() {
           .filter((client) => client.client_name || client.client_id)
           .map((client) => {
             const assigned = recipientsByClient[client.client_id] || [];
+            const sections = parseCommaList(client.newsletter_sections || clientDefaults.newsletter_sections);
             return (
               <div className="client-card" key={client.client_id}>
                 <div className="card-header">
@@ -373,6 +420,15 @@ export default function Dashboard() {
                   <span className="pill">Send: {formatSendTime(client.send_time)}</span>
                   <span className="pill">Active: {client.active === 'TRUE' ? 'Yes' : 'No'}</span>
                 </div>
+                {sections.length > 0 ? (
+                  <div className="pill-row">
+                    {sections.map((section) => (
+                      <span className="pill section-pill" key={section}>
+                        {section}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
                 <div className="recipients-block">
                   <h3>Assigned Recipients</h3>
                   {assigned.length === 0 ? (
@@ -481,6 +537,40 @@ export default function Dashboard() {
                       {url} <span className="remove">×</span>
                     </button>
                   ))}
+                </div>
+              </div>
+              <div className="field">
+                <label>Newsletter sections</label>
+                <div className="section-grid">
+                  {newsletterSectionOptions.map((section) => (
+                    <label className="checkbox-pill" key={section}>
+                      <input
+                        type="checkbox"
+                        checked={selectedBaseSections.includes(section)}
+                        onChange={() => toggleNewsletterSection(section)}
+                      />
+                      <span>{section}</span>
+                    </label>
+                  ))}
+                </div>
+                <div className="other-section">
+                  <label className="checkbox-pill">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(otherSectionText)}
+                      onChange={(event) =>
+                        event.target.checked
+                          ? updateOtherSection(otherSectionText || 'Custom Section')
+                          : updateOtherSection('')
+                      }
+                    />
+                    <span>Other</span>
+                  </label>
+                  <input
+                    placeholder="Custom section header"
+                    value={otherSectionText}
+                    onChange={(event) => updateOtherSection(event.target.value)}
+                  />
                 </div>
               </div>
               <div className="field">
