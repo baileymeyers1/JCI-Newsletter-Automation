@@ -119,6 +119,20 @@ function to24Hour(hour: string, minute: string, period: string): string {
   return `${String(hourNum).padStart(2, '0')}:${minute}`;
 }
 
+function getNextClientId(existing: ClientRow[]): string {
+  const ids = existing
+    .map((client) => client.client_id)
+    .filter((id) => typeof id === 'string' && id.startsWith('client_'));
+  let max = 0;
+  for (const id of ids) {
+    const num = Number(id.replace('client_', ''));
+    if (Number.isFinite(num)) {
+      max = Math.max(max, num);
+    }
+  }
+  return `client_${String(max + 1).padStart(3, '0')}`;
+}
+
 async function fetchJSON<T>(url: string): Promise<T> {
   const res = await fetch(url, { cache: 'no-store' });
   if (!res.ok) {
@@ -191,7 +205,7 @@ export default function Dashboard() {
   }, [logPage, totalLogPages]);
 
   function openNewClient() {
-    setEditingClient({ ...clientDefaults, client_id: `client_${Date.now()}` });
+    setEditingClient({ ...clientDefaults, client_id: getNextClientId(clients) });
     setPresetChoice('');
     setCustomRecipient({ name: '', email: '' });
     setUrlInput('');

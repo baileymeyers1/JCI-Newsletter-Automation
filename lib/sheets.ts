@@ -53,7 +53,7 @@ export async function appendRow(sheetName: string, record: Record<string, string
 
   await sheets.spreadsheets.values.append({
     spreadsheetId: SPREADSHEET_ID,
-    range: `${sheetName}!A1:Z1`,
+    range: `${sheetName}!A:Z`,
     valueInputOption: 'RAW',
     insertDataOption: 'INSERT_ROWS',
     requestBody: {
