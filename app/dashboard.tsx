@@ -359,38 +359,37 @@ export default function Dashboard() {
             const assigned = recipientsByClient[client.client_id] || [];
             return (
               <div className="client-card" key={client.client_id}>
-              <div className="card-header">
-                <div>
-                  <h2>{client.client_name}</h2>
-                  <p>{client.industry}</p>
-                  {client.client_goal ? <p className="goal">{client.client_goal}</p> : null}
+                <div className="card-header">
+                  <div>
+                    <h2>{client.client_name}</h2>
+                    <p>{client.industry}</p>
+                    {client.client_goal ? <p className="goal">{client.client_goal}</p> : null}
+                  </div>
+                  <button className="button secondary" onClick={() => openEditClient(client)}>
+                    Edit
+                  </button>
                 </div>
-                <button className="button secondary" onClick={() => openEditClient(client)}>
-                  Edit
-                </button>
-              </div>
-              <div className="pill-row">
-                <span className="pill">Send: {formatSendTime(client.send_time)}</span>
-                <span className="pill">Active: {client.active === 'TRUE' ? 'Yes' : 'No'}</span>
-              </div>
-              <div className="recipients-block">
-                <h3>Assigned Recipients</h3>
-                {assigned.length === 0 ? (
-                  <p className="muted">No recipients assigned.</p>
-                ) : (
-                  <ul>
-                    {assigned.map((recipient) => (
-                      <li key={recipient.id}>
-                        {recipient.name} <span>{recipient.email}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
+                <div className="pill-row">
+                  <span className="pill">Send: {formatSendTime(client.send_time)}</span>
+                  <span className="pill">Active: {client.active === 'TRUE' ? 'Yes' : 'No'}</span>
+                </div>
+                <div className="recipients-block">
+                  <h3>Assigned Recipients</h3>
+                  {assigned.length === 0 ? (
+                    <p className="muted">No recipients assigned.</p>
+                  ) : (
+                    <ul>
+                      {assigned.map((recipient) => (
+                        <li key={recipient.id}>
+                          {recipient.name} <span>{recipient.email}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
             );
           })}
-        })}
       </div>
 
       {editingClient ? (
