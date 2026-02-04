@@ -1,6 +1,6 @@
 import { google } from 'googleapis';
 
-export type SheetRow = Record<string, string> & { _rowNumber?: number };
+export type SheetRow = Record<string, string | number> & { _rowNumber?: number };
 
 const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID;
 const SERVICE_ACCOUNT_EMAIL = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
